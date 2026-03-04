@@ -20,3 +20,6 @@
 - [DNS](./Linux/DNS.md)
 - [DHCP+FTP](./Linux/Dhcp_FTP.md)
 - [TEST](./Linux/test.md)
+- [MOUNT](./Linux/mount.md)
+- [RAID](./Linux/RAID.md)
+- [DB](./Linux/DB.md)
