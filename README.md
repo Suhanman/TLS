@@ -16,5 +16,7 @@
 
 ---
 
-## 🐧 리눅스 카테고리
+## 🐧 리눅스 
 - [DNS](./Linux/DNS.md)
+- [DHCP](./Linux/dhcp.md)
+- [TEST](./Linux/test.md)
