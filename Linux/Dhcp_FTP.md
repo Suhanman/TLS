@@ -56,3 +56,95 @@ FTP 접속 후 사용하는 주요 명령어 모음입니다.
 | `cd` | 위치 이동 | FTP 서버 내 디렉토리 이동 |
 | `lcd` | 로컬 이동 | 접속한 PC(로컬)의 디렉토리 이동 |
 | `quit` | 종료 | FTP 연결 끊기 및 프로그램 종료 |
+
+## 4. FTP 클라이언트 서버 설정
+  25 anonymous_enable=NO
+- 익명 계정 활성화 여부
+
+28 local_enable=YES
+- 일반 계정 활성화 여부
+
+31 #write_enable=YES
+- 일반 계정 업로드 허용 여부
+
+35 #local_umask=022
+- 일반 사용자 업로드 시 umask 값
+
+103 #ftpd_banner=~~~
+banner_file=/etc/vsftpd_banner
+- ftp 접속 시 출력되는 배너 설정
+
+
+
+* chroot
+- 접속한 사용자의 홈 디렉터리를
+  최상위 디렉터리로 인식 시키는 설정
+
+- 사용자가 이용할 수 있는
+  디렉터리를 제한한다
+
+124 chroot_list_enable=YES
+- chroot 설정이 적용될 사용자를
+  지정할 chroot list 설정 활성화
+
+126 chroot_list_file=/etc/vsftpd.chroot_list
+- list 파일 위치 설정
+
+1) chroot_local_user=NO
+- list 파일에 명시된 사용자들 chroot 적용
+
+2) chroot_local_user=YES
+- list 파일에 명시된 사용자들 chroot 미적용
+
+127 allow_writeable_chroot=YES
+- chroot 적용된 사용자들의 쓰기 권한 허용
+- chroot 설정은 기본적으로 쓰기 권한을 허용하지 않는다
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+* umask
+- 파일, 디렉터리의 초기 허가권 값을
+  제어하는 값
+
+  r w x r - x r - x   =   7 5 5
+
+r = 4
+w= 2
+x = 1
+- = 0
+
+
+0 2 2 = - - -   - w -   - w -
+
+디렉터리 777
+파일 666
+umask 022
+
+
+777 = r w x r w x r w x
+0 2 2 = - - -  - w -  - w -
+==============
+r w x  r - x  r - x
+
+
+
+
+
