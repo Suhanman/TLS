@@ -18,5 +18,5 @@
 
 ## 🐧 리눅스 
 - [DNS](./Linux/DNS.md)
-- [DHCP](./Linux/dhcp.md)
+- [DHCP+FTP](./Linux/Dhcp_FTP.md)
 - [TEST](./Linux/test.md)
