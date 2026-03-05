@@ -260,3 +260,184 @@ DBMS
 - MariaDB (MySQL의 오픈소스 포크)
 - PostgreSQL
 - SQL Server
+
+
+# 데이터베이스 및 네트워크 서버 구성 실습
+
+---
+
+## 1. MariaDB 원격 데이터베이스 설정
+
+### 1.1 작업 조건
+
+| 조건 | 내용 |
+|------|------|
+| 조건 1 | 방화벽 활성화 상태로 진행 (3306/tcp) |
+| 조건 2 | 서버1에서 DB 서버 구축 |
+| 조건 3 | DB 클라이언트(서버2)에서 DB 접속한 상태로 작업 |
+
+### 1.2 데이터베이스 정보
+
+| 항목 | 설정값 |
+|------|--------|
+| 데이터베이스명 | my_DB |
+| 테이블명 | my_TB |
+
+---
+
+## 2. DB 서버(서버1) 구성
+
+### 2.1 방화벽 설정
+
+```bash
+# ufw enable
+# ufw allow 22/tcp
+# ufw allow 3306/tcp
+```
+
+**설명:**
+- ufw 방화벽 활성화
+- SSH 포트(22/tcp) 허용
+- MariaDB 포트(3306/tcp) 허용
+
+---
+
+### 2.2 MariaDB 설치
+
+```bash
+# apt install -y mariadb-server
+```
+
+---
+
+### 2.3 MariaDB 사용자 권한 설정
+
+```bash
+# mysql -u root -p
+```
+
+```sql
+> grant all privileges on *.* to 'itbank'@'192.168.108.%' identified by 'It1';
+> flush privileges;
+```
+
+**설명:**
+- 사용자: `itbank`
+- 비밀번호: `It1`
+- 접근 범위: 192.168.108.0 대역 전체 (`192.168.108.%`)
+- 권한: 모든 권한 부여
+
+---
+
+### 2.4 MariaDB 원격 접속 설정
+
+```bash
+# vi /etc/mysql/mariadb.conf.d/50-server.cnf
+```
+
+**수정 내용 (27번 라인):**
+```ini
+27 #bind-address            = 127.0.0.1
+```
+
+**설명:**
+- `bind-address` 주석 처리하여 모든 인터페이스에서 접속 가능하도록 설정
+
+---
+
+### 2.5 MariaDB 데몬 재시작
+
+```bash
+# systemctl restart mariadb
+```
+
+---
+
+## 3. DB 클라이언트(서버2) 구성
+
+### 3.1 MariaDB 클라이언트 설치
+
+```bash
+# apt install -y mariadb-client
+```
+
+---
+
+### 3.2 DB 서버 원격 접속
+
+```bash
+# mysql -h 192.168.108.10 -u itbank -p
+```
+
+**옵션 설명:**
+- `-h`: 서버 IP 주소 (192.168.108.10)
+- `-u`: 사용자명 (itbank)
+- `-p`: 비밀번호 입력 프롬프트 표시
+
+---
+
+## 4. 데이터베이스 및 테이블 생성
+
+### 4.1 데이터베이스 생성
+
+```sql
+> create database my_DB;
+> use my_DB;
+```
+
+---
+
+### 4.2 테이블 생성
+
+```sql
+> create table my_TB (
+    -> name varchar(30),
+    -> age int(4),
+    -> email varchar(50),
+    -> phone_number char(30),
+    -> address varchar(200));
+```
+
+**테이블 구조:**
+
+| 필드명 | 자료형 | 크기 | 설명 |
+|--------|--------|------|------|
+| name | varchar | 30 | 이름 |
+| age | int | 4 | 나이 |
+| email | varchar | 50 | 이메일 |
+| phone_number | char | 30 | 전화번호 |
+| address | varchar | 200 | 주소 |
+
+---
+
+### 4.3 데이터 입력
+
+#### 방법 1: 한 번에 하나씩 입력
+
+```sql
+> INSERT INTO my_TB VALUES(
+    -> 'Sam smith', 21, 'S@test.com', '010-1111-1111', 'UK');
+> INSERT INTO my_TB VALUES(
+    -> 'Taylor swift', 22, 'T@test.com', '010-2222-2222', 'USA');
+> INSERT INTO my_TB VALUES(
+    -> 'BTS', 23, 'B@test.com', '010-3333-3333', 'KOR');
+```
+
+#### 방법 2: 한 번에 여러 개 입력 (권장)
+
+```sql
+> INSERT INTO my_TB VALUES
+    -> ('Sam smith', 21, 'S@test.com', '010-1111-1111', 'UK'),
+    -> ('Taylor swift', 22, 'T@test.com', '010-2222-2222', 'USA'),
+    -> ('BTS', 23, 'B@test.com', '010-3333-3333', 'KOR');
+```
+
+**입력 데이터:**
+
+| 이름 | 나이 | 이메일 | 전화번호 | 주소 |
+|------|------|--------|---------|------|
+| Sam smith | 21 | S@test.com | 010-1111-1111 | UK |
+| Taylor swift | 22 | T@test.com | 010-2222-2222 | USA |
+| BTS | 23 | B@test.com | 010-3333-3333 | KOR |
+
+---

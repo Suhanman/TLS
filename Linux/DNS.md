@@ -97,3 +97,150 @@
 | 36 | **#MaxSessions 10** | 하나의 IP 당 열 수 있는 최대 세션 개수 |
 
 - **데몬 이름**: `sshd`
+
+
+
+---
+
+## 8. DNS 서버 구성
+
+### 8.1 DNS 설정 정보
+
+| 항목 | 설정값 |
+|------|--------|
+| DNS 서버 IP | 192.168.108.10 |
+| test1.it.com | 192.168.108.10 |
+| test2.it.com | 192.168.108.20 |
+
+**조건:**
+- 방화벽 enable
+
+---
+
+## 9. DNS 서버(서버1) 구성
+
+### 9.1 방화벽 설정
+
+```bash
+# ufw enable
+# ufw allow 22/tcp
+# ufw allow 53/udp
+```
+
+**설명:**
+- ufw 방화벽 활성화
+- SSH 포트(22/tcp) 허용
+- DNS 포트(53/udp) 허용
+
+---
+
+### 9.2 BIND9 패키지 설치
+
+```bash
+# apt install -y bind9
+```
+
+---
+
+### 9.3 DNS 영역 설정
+
+```bash
+# vi /etc/bind/named.conf.default-zones
+```
+
+**설정 파일 내용:**
+```zone
+zone "it.com" {
+        type master;
+        file "/etc/bind/it.com.zone";
+};
+```
+
+**설정 설명:**
+
+| 항목 | 값 | 설명 |
+|------|-----|------|
+| zone | it.com | 영역명 |
+| type | master | 주 DNS 서버 |
+| file | /etc/bind/it.com.zone | 영역 파일 위치 |
+
+---
+
+### 9.4 DNS 레코드 파일 생성
+
+```bash
+# vi /etc/bind/it.com.zone
+```
+
+**설정 파일 내용:**
+```zone
+$TTL    604800
+@       IN      SOA     it.com. mail.it.com. (
+                        0       ; Serial
+                        604800  ; Refresh
+                        86400   ; Retry
+                        2419200 ; Expire
+                        604800 ) ; Negative Cache TTL
+        IN      NS      it.com.
+        IN      A       192.168.108.10
+test1   IN      A       192.168.108.10
+test2   IN      A       192.168.108.20
+```
+
+**DNS 레코드 설명:**
+
+| 레코드 | 타입 | 값 | 설명 |
+|--------|------|-----|------|
+| it.com. | SOA | mail.it.com. | 권한의 시작 레코드 |
+| it.com. | NS | it.com. | 네임서버 |
+| it.com. | A | 192.168.108.10 | 루트 도메인 → 192.168.108.10 |
+| test1 | A | 192.168.108.10 | test1.it.com → 192.168.108.10 |
+| test2 | A | 192.168.108.20 | test2.it.com → 192.168.108.20 |
+
+**SOA 레코드 필드:**
+
+| 필드 | 값 | 설명 |
+|------|-----|------|
+| Serial | 0 | 영역 버전 번호 |
+| Refresh | 604800 | 보조 DNS 새로고침 간격 (초) |
+| Retry | 86400 | 재시도 간격 (초) |
+| Expire | 2419200 | 만료 시간 (초) |
+| Negative Cache TTL | 604800 | 부정 캐시 TTL (초) |
+
+---
+
+### 9.5 BIND9 데몬 재시작 및 확인
+
+```bash
+# systemctl restart bind9
+# systemctl status bind9
+```
+
+---
+
+## 설정 완료 체크리스트
+
+### MariaDB 설정
+- [ ] 방화벽 활성화 및 포트 허용 (22/tcp, 3306/tcp)
+- [ ] MariaDB 설치
+- [ ] itbank 사용자 권한 부여
+- [ ] bind-address 주석 처리
+- [ ] MariaDB 재시작
+- [ ] 클라이언트 연결 확인
+- [ ] 데이터베이스 및 테이블 생성
+- [ ] 데이터 입력 완료
+
+### DHCP 설정
+- [ ] 방화벽 활성화 및 포트 허용 (22/tcp, 67/udp)
+- [ ] isc-dhcp-server 설치
+- [ ] dhcpd.conf 설정 완료
+- [ ] DHCP 서버 재시작
+- [ ] 클라이언트 IP 할당 확인
+
+### DNS 설정
+- [ ] 방화벽 활성화 및 포트 허용 (22/tcp, 53/udp)
+- [ ] BIND9 설치
+- [ ] named.conf.default-zones 설정 완료
+- [ ] it.com.zone 파일 생성
+- [ ] BIND9 재시작
+- [ ] DNS 이름 해석 확인
