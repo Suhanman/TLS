@@ -33,6 +33,7 @@
 ## 🌐 네트워크 (26년 초 공부(재학습))
 - [NetworkBasic](./Network/NetworkBasic.md)
 - [TCPIP_4_Layer](./Network/TCPIP_4_Layer.md)
+- [1,2 계층](./Network/1_2_Layer.md)
 - [3,4 계층](./Network/3_4_Layer.md)
 - [5,6,7 계층](./Network/567_Layer.md)
 - [DNS](./Network/DNS.md)
